@@ -1,5 +1,4 @@
 #define BLYNK_PRINT Serial
-
 #include <SPI.h>
 #include <Ethernet.h>
 #include <BlynkSimpleEthernet.h>
@@ -52,6 +51,14 @@ BLYNK_WRITE(V8)
 BLYNK_WRITE(V26)
 {
   speakerInput = 3;//set to mute
+}
+BLYNK_WRITE(V27)
+{
+  speakerInput = 4;//set to vuone
+}
+BLYNK_WRITE(V28)
+{
+  speakerInput = 5;//set to vdownone
 }
 
 int blindState = -1; //0 is closed 1 is half 2 is open

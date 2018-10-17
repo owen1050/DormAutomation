@@ -10,8 +10,8 @@ Servo mainServo;
 
 boolean hallPos = false;
 boolean mainPos = false;
-int hallPosOff = 0;
-int hallPosOn = 128;
+int hallPosOff = 50;
+int hallPosOn = 60;
 int mainPosOff = 128;
 int mainPosOn = 0;
 
@@ -29,6 +29,7 @@ int moveHallTime = 0;
 
 int setMainTime = 0;
 int moveMainTime = 0;
+String prev ="";
 
 void setup() {
   Serial.begin(9600);
@@ -42,10 +43,20 @@ void setup() {
 }
 
 void loop() {
+  
   if (radio.available()) {
     radio.read(&text, radio.getPayloadSize());
     Serial.println(text);
     String dataIn = String(text);
+    if(dataIn == prev)
+    {
+      dataIn ="";
+    }
+    else
+    {
+      prev = dataIn;
+    }
+    
    hallDelt = 0;
     mainDelt = 0;
     //all the ways in which to move jsut hall off
@@ -73,7 +84,7 @@ void loop() {
       mainDelt = 1;
       setMainTime = millis();
     }
-    if(mainPos && mainDelt == 1&&abs(moveMainTime - setMainTime)>4000)
+    if(mainPos && mainDelt == 1&&abs(moveMainTime - setMainTime)>2750)
     {
       mainServo.attach(5);
       Serial.println("turning on main");
@@ -81,7 +92,7 @@ void loop() {
       resetMain = true;
       
     }
-    if(!mainPos && mainDelt == 1&&abs(moveMainTime - setMainTime)>4000)
+    if(!mainPos && mainDelt == 1&&abs(moveMainTime - setMainTime)>2750)
     {
       mainServo.attach(5);
       Serial.println("turning off main");
@@ -89,35 +100,35 @@ void loop() {
       resetMain = true;
       
     }
-    if(hallPos&& hallDelt == 1&&abs(moveHallTime - setHallTime)>4000)
+    if(hallPos&& hallDelt == 1&&abs(moveHallTime - setHallTime)>2750)
     {
       hallServo.attach(4);
       Serial.println("turning on hall");
-      hallServo.write(60);
+      hallServo.write(45);
       resetHall = true;
       
       //setHallServoHallOn
     }
-    if(!hallPos&& hallDelt == 1&&abs(moveHallTime - setHallTime)>4000)
+    if(!hallPos&& hallDelt == 1&&abs(moveHallTime - setHallTime)>2750)
     {
       hallServo.attach(4);
       Serial.println("turning off hall");
       
-      hallServo.write(135);
+      hallServo.write(125);
       resetHall = true;
       
       //setHallServoHallOff
     }
-    delay(1000);
+    delay(1500);
     if(resetHall)
     {
-      hallServo.write(97);
+      hallServo.write(85);
     }
     if(resetMain)
     {
       mainServo.write(55);
     }
-    delay(500);
+    delay(1000);
     if(resetHall)
     {
       hallServo.detach();
