@@ -1,7 +1,7 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
-
+#include <Wire.h>
 #include <IRLibSendBase.h>
 #include <IRLibDecodeBase.h>
 #include <IRLib_HashRaw.h>  //Must be last protocol
@@ -89,7 +89,7 @@ RF24 radio(3, 5); // CE, CSN
 char text[32];
 
 int inData[11];
-
+int tempAction = -1;
 boolean blindIsDown = true;
 int percentUp = 100;
 const int fullTimeUp = 10000;
@@ -104,7 +104,8 @@ int finalT = 0;
 unsigned long deltaT = 0;
 
 void setup() {
-  Serial.begin(9600);
+  Wire.begin(3);                // join i2c bus with address #8
+  Wire.onReceive(receiveEvent); // register event
   radio.begin();
   radio.setChannel(124);
   radio.openWritingPipe(0x00000001);
@@ -118,24 +119,18 @@ void setup() {
 
 void loop() {
 
-  checkGoodSerialData();
-  updateOutputs();
+  checkGoodI2CData();
   checkIRData();
+  updateOutputs();
+  
 }
 
-void checkGoodSerialData()
+void checkGoodI2CData()
 {
-  if (Serial.available())
+  if (tempAction != -1)
   {
-    shiftData();
-    inData[0] = Serial.read();
-    if (realDataIn0())
-    {
-      //Serial.print(String(inData[0]) + " ");
-      action = inData[0];
-
-
-    }
+    action = tempAction;
+    tempAction = -1;
   }
 }
 
@@ -731,5 +726,13 @@ void tvSet()
     tvChanging = true;
     tvFirst = true;
   }
+}
+
+void receiveEvent(int howMany) {
+  while (1 < Wire.available()) { // loop through all but the last
+    tempAction = Wire.read(); // receive byte as a character
+    
+  }
+  
 }
 

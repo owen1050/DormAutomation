@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <BlynkSimpleEthernet.h>
+#include <Wire.h>
 char auth[] = "9904859d0fe5408eba3eb69e7fbc955e";
 
 #define W5100_CS  10
@@ -98,12 +99,12 @@ int bothLightState = -1;
 BLYNK_WRITE(V16)
 {
   bothLightState = 1;//hall luights on
-  
+
 }
 BLYNK_WRITE(V17)
 {
   bothLightState = 0;//hall luights off
- 
+
 }
 //forcing lights
 int FORCEhallLightState = -1;//0 is off 1 is on
@@ -133,7 +134,7 @@ BLYNK_WRITE(V22)
 BLYNK_WRITE(V23)
 {
   FbothLightState = 0;//hall luights off
-  
+
 }
 
 int steroVolume = -1;
@@ -150,7 +151,7 @@ BLYNK_WRITE(V25)
 
 void setup()
 {
-  Serial.begin(9600);
+  Wire.begin();
   Blynk.begin(auth);
 }
 
@@ -161,77 +162,70 @@ void loop()
   {
     Serial.write(0);
   }
-  
-  if(tvInput != -1)
+
+  if (tvInput != -1)
   {
-    sendWithAuth(16+tvInput);
+    sendWithAuth(16 + tvInput);
     tvInput = -1;
   }
-  if(speakerInput != -1)
+  if (speakerInput != -1)
   {
-    sendWithAuth(32+speakerInput);
+    sendWithAuth(32 + speakerInput);
     speakerInput = -1;
   }
-  if(blindState != -1)
+  if (blindState != -1)
   {
-    sendWithAuth(48+blindState);
+    sendWithAuth(48 + blindState);
     blindState = -1;
   }
-  if(hallLightState != -1)
+  if (hallLightState != -1)
   {
     sendWithAuth(65 - hallLightState);
     hallLightState = -1;
   }
-  if(mainLightState != -1)
+  if (mainLightState != -1)
   {
     sendWithAuth(67 - mainLightState);
     mainLightState = -1;
   }
-  if(bothLightState != -1)
+  if (bothLightState != -1)
   {
-    sendWithAuth(69-bothLightState);
+    sendWithAuth(69 - bothLightState);
     bothLightState = -1;
   }
-  if(FORCEhallLightState != -1)
+  if (FORCEhallLightState != -1)
   {
     sendWithAuth(71 - FORCEhallLightState);
     FORCEhallLightState = -1;
   }
-  if(FORCEmainLightState != -1)
+  if (FORCEmainLightState != -1)
   {
     sendWithAuth(73 - FORCEmainLightState);
     FORCEmainLightState = -1;
   }
-  if(FbothLightState != -1)
+  if (FbothLightState != -1)
   {
-    sendWithAuth(75-FbothLightState);
+    sendWithAuth(75 - FbothLightState);
     FbothLightState = -1;
   }
-  if(steroVolume != -1)
+  if (steroVolume != -1)
   {
-    sendWithAuth(128+steroVolume);
+    sendWithAuth(128 + steroVolume);
     steroVolume = -1;
   }
-  if(blindPercent != -1)
+  if (blindPercent != -1)
   {
-    sendWithAuth(192 + (int)(blindPercent/2));
+    sendWithAuth(192 + (int)(blindPercent / 2));
     blindPercent = -1;
   }
 }
 
 boolean sendWithAuth(int value)
 {
-  Serial.write(0);
-  Serial.write(1);
-  Serial.write(2);
-  Serial.write(3);
-  Serial.write(4);
-  Serial.write(5);
-  Serial.write(6);
-  Serial.write(7);
-  Serial.write(8);
-  Serial.write(9);
-  Serial.write(value);
+  Wire.beginTransmission(3);
+  Wire.write(value);
+  Wire.endTransmission();
+ 
   return true;
 }
 
