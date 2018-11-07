@@ -19,8 +19,6 @@ const int IR_DATA_LEN = 68;
 IRsendRaw irLED;
 
 unsigned long irDatIn = -1;
-unsigned long irTime = 0;
-unsigned long irNow = 0;
 
 
 uint16_t TV_POWER[IR_DATA_LEN] = {4410, 4606, 474, 1762, 482, 1762, 478, 1766, 454, 662, 478, 650, 458, 658, 454, 670, 450, 670, 450, 1794, 478, 1762, 454, 1794, 474, 642, 458, 666, 450, 670, 458, 658, 454, 670, 458, 666, 450, 1794, 450, 662, 458, 674, 450, 662, 458, 666, 450, 670, 478, 650, 450, 1790, 474, 650, 470, 1766, 462, 1778, 482, 1762, 478, 1762, 466, 1782, 478, 1762, 478, 1000};
@@ -104,7 +102,7 @@ int finalT = 0;
 unsigned long deltaT = 0;
 
 void setup() {
-  Wire.begin(3);                // join i2c bus with address #8
+  Wire.begin(0x05);                // join i2c bus with address #0x05
   Wire.onReceive(receiveEvent); // register event
   radio.begin();
   radio.setChannel(124);
@@ -122,7 +120,7 @@ void loop() {
   checkGoodI2CData();
   checkIRData();
   updateOutputs();
-  
+
 }
 
 void checkGoodI2CData()
@@ -515,198 +513,205 @@ void checkIRData()
   if (myReceiver.getResults()) {
     myDecoder.decode();
     irDatIn = myDecoder.value;
-    ////Serial.println(irDatIn);
 
   }
-  irNow = millis();
-  if (abs(irNow - irTime) > 250);
+
+  if (irDatIn == 3859929889 || irDatIn == 2012435229 )
   {
-    if (irDatIn == 3859929889 || irDatIn == 2012435229 )
-    {
-      irLED.send(TV_POWER, IR_DATA_LEN, 36);
-      irTime = millis();
-    }
-    if (irDatIn == 3712536422)
-    {
-      irLED.send(TV_SOURCE, IR_DATA_LEN, 36);
-    }
+    irLED.send(TV_POWER, IR_DATA_LEN, 36);
+    
+  }
+  if (irDatIn == 3712536422)
+  {
+    irLED.send(TV_SOURCE, IR_DATA_LEN, 36);
+    
+  }
 
-    if (irDatIn == 4039450310)
-    {
-      irLED.send(TV_UP, IR_DATA_LEN, 36);
+  if (irDatIn == 4039450310)
+  {
+    irLED.send(TV_UP, IR_DATA_LEN, 36);
+    
 
-    }
-    if (irDatIn == 1772640354)
-    {
-      irLED.send(TV_DOWN, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 2291974051)
-    {
-      irLED.send(TV_CHU, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 879088869)
-    {
-      irLED.send(TV_CHD, IR_DATA_LEN, 36);
-    }
+  }
+  if (irDatIn == 1772640354)
+  {
+    irLED.send(TV_DOWN, IR_DATA_LEN, 36);
+    
+  }
+  if (irDatIn == 2291974051)
+  {
+    irLED.send(TV_CHU, IR_DATA_LEN, 36);
+    
+  }
+  if (irDatIn == 879088869)
+  {
+    irLED.send(TV_CHD, IR_DATA_LEN, 36);
+    
+  }
 
-    if (irDatIn == 3262729347)
-    {
-      irLED.send(SPEAKER_MUTE, IR_DATA_LEN, 36);
-      irTime = millis();
-    }
-    if (irDatIn == 1991468771)
+  if (irDatIn == 3262729347)
+  {
+    irLED.send(SPEAKER_MUTE, IR_DATA_LEN, 36);
+    
+  }
+  if (irDatIn == 1991468771)
+  {
+    openBlinds = true;
+    blindStartTime = millis();
+    blindsSetpoint = 100;
+
+  }
+  if (irDatIn == 1860168033)
+  {
+    closeBlinds = true;
+    blindStartTime = millis();
+  }
+  if (irDatIn == 2453607691)
+  {
+    digitalWrite(motorPin, 0);
+    openBlinds = false;
+    closeBlinds = false;
+    irLED.send(TV_ENTER, IR_DATA_LEN, 36);
+    
+  }
+  if (irDatIn == 1162079395)
+  {
+    speakerVolume++;
+    irLED.send(SPEAKER_VU, IR_DATA_LEN, 36);
+    
+  }
+  if (irDatIn == 2052588673)
+  {
+    speakerVolume--;
+    irLED.send(SPEAKER_VD, IR_DATA_LEN, 36);
+    
+  }
+  if (irDatIn == 1150302533 || irDatIn == 1136104327)
+  {
+    irLED.send(SPEAKER_AUXTWO, IR_DATA_LEN, 36);
+    
+  }
+  if (irDatIn == 2224235747 || irDatIn == 2477111649)
+  {
+    irLED.send(SPEAKER_AUXONE, IR_DATA_LEN, 36);
+    
+  }
+  if (irDatIn == 1523480583 )
+  {
+    setMsg("F11");
+    sendRFMsgConfirm();
+  }
+  if (irDatIn == 42510820553 || irDatIn == 4251082055)
+  {
+    setMsg("F00");
+    sendRFMsgConfirm();
+  }
+
+  if (irDatIn == 1394745315 )
+  {
+    setMsg("F_1");
+    sendRFMsgConfirm();
+  }
+  if (irDatIn == 3467979613)
+  {
+    setMsg("F_0");
+    sendRFMsgConfirm();
+  }
+
+  if (irDatIn == 1212113475 ) //hall
+  {
+    setMsg("F1_");
+    sendRFMsgConfirm();
+  }
+  if (irDatIn == 673965407)
+  {
+    setMsg("F0_");
+    sendRFMsgConfirm();
+  }
+  if (irDatIn == 934531617)
+  {
+    tvSetpoint = 0;
+    tvSet();
+  }
+  if (irDatIn == 3541082599)
+  {
+    tvSetpoint = 2;
+    tvSet();
+  }
+  if (irDatIn == 2294479809)
+  {
+    tvSetpoint = 3;
+    tvSet();
+  }
+  if (irDatIn == 952318659)
+  {
+    tvSetpoint = 1;
+    tvSet();
+  }
+
+  if (irDatIn == 540941759)//all on
+  {
+    blindIsDown = !digitalRead(stopPin);
+    if (blindIsDown)
     {
       openBlinds = true;
       blindStartTime = millis();
       blindsSetpoint = 100;
-
     }
-    if (irDatIn == 1860168033)
-    {
-      closeBlinds = true;
-      blindStartTime = millis();
-    }
-    if (irDatIn == 2453607691)
-    {
-      digitalWrite(motorPin, 0);
-      openBlinds = false;
-      closeBlinds = false;
-      irLED.send(TV_ENTER, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 1162079395)
-    {
-      speakerVolume++;
-      irLED.send(SPEAKER_VU, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 2052588673)
-    {
-      speakerVolume--;
-      irLED.send(SPEAKER_VD, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 1150302533 || irDatIn == 1136104327)
-    {
-      irLED.send(SPEAKER_AUXTWO, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 2224235747 || irDatIn == 2477111649)
-    {
-      irLED.send(SPEAKER_AUXONE, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 1523480583 )
-    {
-      setMsg("F11");
-      sendRFMsgConfirm();
-    }
-    if (irDatIn == 42510820553 || irDatIn == 4251082055)
-    {
-      setMsg("F00");
-      sendRFMsgConfirm();
-    }
-
-    if (irDatIn == 1394745315 )
-    {
-      setMsg("F_1");
-      sendRFMsgConfirm();
-    }
-    if (irDatIn == 3467979613)
-    {
-      setMsg("F_0");
-      sendRFMsgConfirm();
-    }
-
-    if (irDatIn == 1212113475 ) //hall
-    {
-      setMsg("F1_");
-      sendRFMsgConfirm();
-    }
-    if (irDatIn == 673965407)
-    {
-      setMsg("F0_");
-      sendRFMsgConfirm();
-    }
-    if (irDatIn == 934531617)
-    {
-      tvSetpoint = 0;
-      tvSet();
-    }
-    if (irDatIn == 3541082599)
-    {
-      tvSetpoint = 2;
-      tvSet();
-    }
-    if (irDatIn == 2294479809)
-    {
-      tvSetpoint = 3;
-      tvSet();
-    }
-    if (irDatIn == 952318659)
-    {
-      tvSetpoint = 1;
-      tvSet();
-    }
-
-    if (irDatIn == 540941759)//all on
-    {
-      blindIsDown = !digitalRead(stopPin);
-      if (blindIsDown)
-      {
-        openBlinds = true;
-        blindStartTime = millis();
-        blindsSetpoint = 100;
-      }
-      setMsg("F11");
-      sendRFMsgConfirm();
-    }
-
-    if (irDatIn == 2050993606)//all off
-    {
-      closeBlinds = true;
-      blindStartTime = millis();
-      setMsg("F00");
-      sendRFMsgConfirm();
-    }
-
-
-    if (irDatIn == 134254273)
-    {
-      irLED.send(TV_0, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 741238371)
-    {
-      irLED.send(TV_1, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 95080641)
-    {
-      irLED.send(TV_2, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 2759906759)
-    {
-      irLED.send(TV_3, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 421994529)
-    {
-      irLED.send(TV_4, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 1292669927)
-    {
-      irLED.send(TV_5, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 3543462021)
-    {
-      irLED.send(TV_6, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 2448539651)
-    {
-      irLED.send(TV_7, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 80439233)
-    {
-      irLED.send(TV_8, IR_DATA_LEN, 36);
-    }
-    if (irDatIn == 2269822023)
-    {
-      irLED.send(TV_9, IR_DATA_LEN, 36);
-    }
+    setMsg("F11");
+    sendRFMsgConfirm();
   }
+
+  if (irDatIn == 2050993606)//all off
+  {
+    closeBlinds = true;
+    blindStartTime = millis();
+    setMsg("F00");
+    sendRFMsgConfirm();
+  }
+
+
+  if (irDatIn == 134254273)
+  {
+    irLED.send(TV_0, IR_DATA_LEN, 36);
+  }
+  if (irDatIn == 741238371)
+  {
+    irLED.send(TV_1, IR_DATA_LEN, 36);
+  }
+  if (irDatIn == 95080641)
+  {
+    irLED.send(TV_2, IR_DATA_LEN, 36);
+  }
+  if (irDatIn == 2759906759)
+  {
+    irLED.send(TV_3, IR_DATA_LEN, 36);
+  }
+  if (irDatIn == 421994529)
+  {
+    irLED.send(TV_4, IR_DATA_LEN, 36);
+  }
+  if (irDatIn == 1292669927)
+  {
+    irLED.send(TV_5, IR_DATA_LEN, 36);
+  }
+  if (irDatIn == 3543462021)
+  {
+    irLED.send(TV_6, IR_DATA_LEN, 36);
+  }
+  if (irDatIn == 2448539651)
+  {
+    irLED.send(TV_7, IR_DATA_LEN, 36);
+  }
+  if (irDatIn == 80439233)
+  {
+    irLED.send(TV_8, IR_DATA_LEN, 36);
+  }
+  if (irDatIn == 2269822023)
+  {
+    irLED.send(TV_9, IR_DATA_LEN, 36);
+  }
+
   irDatIn = -1;
   myReceiver.enableIRIn();
 
@@ -729,10 +734,7 @@ void tvSet()
 }
 
 void receiveEvent(int howMany) {
-  while (1 < Wire.available()) { // loop through all but the last
-    tempAction = Wire.read(); // receive byte as a character
-    
-  }
-  
+  tempAction = Wire.read(); // receive byte as a character
+
 }
 

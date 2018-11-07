@@ -158,11 +158,6 @@ void setup()
 void loop()
 {
   Blynk.run();
-  if (abs(millis() % 1000) < 1)
-  {
-    Serial.write(0);
-  }
-
   if (tvInput != -1)
   {
     sendWithAuth(16 + tvInput);
@@ -222,7 +217,7 @@ void loop()
 
 boolean sendWithAuth(int value)
 {
-  Wire.beginTransmission(3);
+  Wire.beginTransmission(0x05);
   Wire.write(value);
   Wire.endTransmission();
  
