@@ -71,7 +71,7 @@ const int TV_INPUT_TV = 0;
 const int TV_INPUT_360 = 1;
 const int TV_INPUT_CHROME = 2;
 const int TV_INPUT_ONE = 3;
-int tvTimeDelay = 250;
+unsigned long tvTimeDelay = 250;
 unsigned long tvLastUpdated = -1;
 int ups = 0;
 int downs = 0;
@@ -82,7 +82,7 @@ boolean hideTvChange = false;
 int speakerVolume = 0;
 int speakerSetpoint = 0;
 boolean speakerVolumeChanging = false;
-int speakerTimeDelay = 200;
+unsigned long speakerTimeDelay = 200;
 unsigned long speakerLastUpdated = -1;
 unsigned long currentTime = 0;
 RF24 radio(3, 5); // CE, CSN
@@ -131,7 +131,7 @@ void checkGoodSerialData()
     inData[0] = Serial.read();
     if (realDataIn0())
     {
-      Serial.print(String(inData[0]) + " ");
+      //Serial.print(String(inData[0]) + " ");
       action = inData[0];
 
 
@@ -173,7 +173,7 @@ void updateTV(int action)
 {
   if (action == 16)
   {
-    Serial.println("set the tv input to tv");
+    //Serial.println("set the tv input to tv");
     tvSetpoint = TV_INPUT_TV;
     if (tvPos > tvSetpoint)
     {
@@ -190,7 +190,7 @@ void updateTV(int action)
   }
   if (action == 17)
   {
-    Serial.println("set the tv input to chrome");
+    //Serial.println("set the tv input to chrome");
     tvSetpoint = TV_INPUT_CHROME;
     if (tvPos > tvSetpoint)
     {
@@ -207,7 +207,7 @@ void updateTV(int action)
   }
   if (action == 18)
   {
-    Serial.println("set the tv input to xbox one");
+    //Serial.println("set the tv input to xbox one");
     tvSetpoint = TV_INPUT_ONE;
     if (tvPos > tvSetpoint)
     {
@@ -224,7 +224,7 @@ void updateTV(int action)
   }
   if (action == 19)
   {
-    Serial.println("set the tv input to xbox 360 compnent");
+    //Serial.println("set the tv input to xbox 360 compnent");
     tvSetpoint = TV_INPUT_360;
     if (tvPos > tvSetpoint)
     {
@@ -241,12 +241,12 @@ void updateTV(int action)
   }
   if (action == 20)
   {
-    Serial.println("set the tv input to on");
+    //Serial.println("set the tv input to on");
     irLED.send(TV_POWER, IR_DATA_LEN, 36);
   }
   if (action == 21)
   {
-    Serial.println("set the tv input to off");
+    //Serial.println("set the tv input to off");
     irLED.send(TV_POWER, IR_DATA_LEN, 36);
   }
   if (tvChanging && abs(millis() - tvLastUpdated) > tvTimeDelay)
@@ -302,36 +302,36 @@ void updateSpeakers(int action)
 {
   if (action == 32)
   {
-    Serial.println("set the speaker chrome/aux2");
+    //Serial.println("set the speaker chrome/aux2");
     irLED.send(SPEAKER_AUXTWO, IR_DATA_LEN, 36);
   }
   if (action == 33)
   {
-    Serial.println("set the speaker tv");
+    //Serial.println("set the speaker tv");
     irLED.send(SPEAKER_AUXONE, IR_DATA_LEN, 36);
   }
   if (action == 34)
   {
-    Serial.println("set the speaker record player");
+    //Serial.println("set the speaker record player");
   }
   if (action == 35)
   {
-    Serial.println("set the speaker mute or unmute");
+    //Serial.println("set the speaker mute or unmute");
     irLED.send(SPEAKER_MUTE, IR_DATA_LEN, 36);
   }
   if (action == 36)
   {
-    Serial.println("speaker power on");
+    //Serial.println("speaker power on");
     irLED.send(SPEAKER_POWERON, IR_DATA_LEN, 36);
   }
   if (action == 37)
   {
-    Serial.println("speaker power off");
+    //Serial.println("speaker power off");
     irLED.send(SPEAKER_POWEROFF, IR_DATA_LEN, 36);
   }
   if (action > 127 && action < 192 )
   {
-    Serial.println("set the speaker volume to " + String(action - 128));
+    //Serial.println("set the speaker volume to " + String(action - 128));
     speakerSetpoint = action - 128;
     speakerVolumeChanging = true;
   }
@@ -341,20 +341,20 @@ void updateSpeakers(int action)
     speakerLastUpdated = currentTime;
     if (speakerSetpoint == speakerVolume) {
       speakerVolumeChanging = false;
-      Serial.println("volume at setpoint");
+      //Serial.println("volume at setpoint");
     }
     if (speakerSetpoint > speakerVolume)
     {
       speakerVolume++;
       irLED.send(SPEAKER_VU, IR_DATA_LEN, 36);
-      Serial.println(speakerVolume);
+      //Serial.println(speakerVolume);
 
     }
     if (speakerSetpoint < speakerVolume)
     {
       speakerVolume--;
       irLED.send(SPEAKER_VD, IR_DATA_LEN, 36);
-      Serial.println(speakerVolume);
+      //Serial.println(speakerVolume);
     }
   }
 }
@@ -364,13 +364,13 @@ void updateBlinds(int action)
   blindIsDown = !digitalRead(stopPin);
   if (action == 48)
   {
-    Serial.println("close bliunds");
+    //Serial.println("close bliunds");
     closeBlinds = true;
     blindStartTime = millis();
   }
   if (action == 49)
   {
-    Serial.println("half blinds");
+    //Serial.println("half blinds");
     if (blindIsDown)
     {
       openBlinds = true;
@@ -380,7 +380,7 @@ void updateBlinds(int action)
   }
   if (action == 50)
   {
-    Serial.println("full blinds");
+    //Serial.println("full blinds");
     if (blindIsDown)
     {
       openBlinds = true;
@@ -390,7 +390,7 @@ void updateBlinds(int action)
   }
   if (action > 191 && action < 243)
   {
-    Serial.println("set the blinds to " + String(2 * (action - 192)) + "percent");
+    //Serial.println("set the blinds to " + String(2 * (action - 192)) + "percent");
     if (blindIsDown)
     {
       openBlinds = true;
@@ -416,16 +416,16 @@ void updateBlinds(int action)
   {
     deltaT = abs(millis() - blindStartTime);
     finalT = (int)(((double)blindsSetpoint / (double)100) * (double)fullTimeUp);
-    Serial.println(deltaT );
-    Serial.println(finalT);
+    //Serial.println(deltaT );
+    //Serial.println(finalT);
     if (deltaT < finalT)
     {
-      Serial.println("high");
+      //Serial.println("high");
       analogWrite(motorPin, 170);
     }
     else
     {
-      Serial.println("low");
+      //Serial.println("low");
       digitalWrite(motorPin, 0);
       openBlinds = false;
       percentUp = blindsSetpoint;
@@ -513,7 +513,6 @@ void sendRFMsgConfirm()
   {
     radio.write(&text, sizeof(text));
   }
-  Serial.println( millis() - time0);
 }
 
 void checkIRData()
@@ -521,7 +520,7 @@ void checkIRData()
   if (myReceiver.getResults()) {
     myDecoder.decode();
     irDatIn = myDecoder.value;
-    Serial.println(irDatIn);
+    ////Serial.println(irDatIn);
 
   }
   irNow = millis();
