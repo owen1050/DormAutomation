@@ -2,7 +2,7 @@
 #include <nRF24L01.h>
 #include <RF24.h>
 #include <Servo.h>
-RF24 radio(9, 10); // CE, CSN
+RF24 radio(7,8); // CE, CSN
 char text[32];
 
 Servo hallServo;
@@ -14,6 +14,7 @@ int hallPosOff = 50;
 int hallPosOn = 60;
 int mainPosOff = 128;
 int mainPosOn = 0;
+unsigned long prevT = 0;
 
 boolean resetMain = false;
 boolean resetHall = false;
@@ -30,14 +31,12 @@ int moveHallTime = 0;
 int setMainTime = 0;
 int moveMainTime = 0;
 String prev ="";
-
+const byte address[6] = "00001";
 void setup() {
   Serial.begin(9600);
   radio.begin();
-  radio.openReadingPipe(1, 0x00000001);
-  radio.setChannel(124);
-  radio.setPALevel(RF24_PA_HIGH);
-  radio.setDataRate(RF24_250KBPS);
+  radio.openReadingPipe(0, address);
+  //radio.setPALevel(RF24_PA_MIN);
   
   radio.startListening();
 }
@@ -47,14 +46,27 @@ void loop() {
   if (radio.available()) {
     radio.read(&text, radio.getPayloadSize());
     Serial.println(text);
+    
     String dataIn = String(text);
-    if(dataIn == prev)
+    /**
+    Serial.println("/////");
+    Serial.println(prev);
+    Serial.println(dataIn);
+    Serial.println(prevT);
+    Serial.println(abs(millis() - prevT));
+    Serial.println(prev == dataIn);
+    Serial.println(abs(millis() - prevT) <5000);
+    */
+    if(prev == dataIn && abs(millis() - prevT) <5000)
     {
-      dataIn ="";
+      dataIn = "";
+      prevT = millis();
     }
     else
     {
       prev = dataIn;
+      prevT = millis();
+      Serial.println(dataIn);
     }
     
    hallDelt = 0;
@@ -104,7 +116,7 @@ void loop() {
     {
       hallServo.attach(4);
       Serial.println("turning on hall");
-      hallServo.write(45);
+      hallServo.write(55);
       resetHall = true;
       
       //setHallServoHallOn
@@ -114,21 +126,29 @@ void loop() {
       hallServo.attach(4);
       Serial.println("turning off hall");
       
-      hallServo.write(125);
+      hallServo.write(115);
       resetHall = true;
       
       //setHallServoHallOff
     }
-    delay(1500);
+    if(resetHall || resetMain)
+    {
+      delay(1500);
+    }
     if(resetHall)
     {
       hallServo.write(85);
+      
     }
     if(resetMain)
     {
       mainServo.write(55);
+      
     }
-    delay(1000);
+    if(resetHall || resetMain)
+    {
+      delay(1000);
+    }
     if(resetHall)
     {
       hallServo.detach();

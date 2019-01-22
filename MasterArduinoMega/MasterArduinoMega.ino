@@ -396,7 +396,7 @@ void updateBlinds(int action)
   {
     if (!blindIsDown && abs(millis() - blindStartTime) < (double)fullTimeUp * 1.5)
     {
-      analogWrite(motorPin, 75);
+      analogWrite(motorPin, 75);//close
 
     }
     else
