@@ -10,22 +10,47 @@ String gVars[] = {"blindsMoveAllUp", "0", "blindMoveAllDown", "0", "blindMovePUp
 
 void setup() {
   Serial.begin(9600);
-
+  String a = "gahr";
+  int p = 1;
+  p = a.toInt();
+  Serial.println(p);
   pinMode(4,OUTPUT);
   digitalWrite(4,HIGH);
-
   Serial.print(F("Starting ethernet..."));
   if(!Ethernet.begin(mac)) Serial.println(F("failed"));
   else Serial.println(Ethernet.localIP());
 
   delay(2000);
-  Serial.println(F("Ready"));\  
+  Serial.println(F("Ready"));
 }
 
 void loop() {
   Ethernet.maintain();
   //Serial.println();
-  postPage("return_if_changed");
+  String str = postPage("return_if_changed");
+  int check = str.indexOf("no_change");
+  if(check < 0)
+  {
+    boolean good = true;
+    for(int i = 0; i <= 22 && good; i++)
+    {
+      int ti = str.indexOf(gVars[2*i]);
+      if(ti>=0)
+      {
+        good = false;
+      }
+      
+    }
+  }
+  if(str.indexOf(gVars[0])>=0 && str.indexOf(gVars[44])>=0)
+  {
+    updateGvars(str);
+  }
+  if(gVars[1].toInt() > 0)
+  {
+    Serial.println(gVars[1].toInt());
+  }
+  
   delay(50);
 }
 
@@ -73,7 +98,7 @@ String postPage(char* thisData)
     }
   }
   //delay(50);
-  Serial.println(millis());
+  //Serial.println(millis());
   client.stop();
   return retStr;
 }
