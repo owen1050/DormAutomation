@@ -25,7 +25,8 @@ void setup() {
 void loop() {
   Ethernet.maintain();
   //Serial.println();
-  updateGvars(postPage("return_all"));
+  postPage("return_if_changed");
+  delay(50);
 }
 
 String postPage(char* thisData)
@@ -64,7 +65,7 @@ String postPage(char* thisData)
 
     delay(1);
     connectLoop++;
-    if(connectLoop > 10000)
+    if(connectLoop > 2000)
     {
       Serial.println();
       Serial.println(F("Timeout"));
