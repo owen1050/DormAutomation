@@ -11,12 +11,18 @@ byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 char serverName[] = "100.35.205.75";
 int serverPort = 23654;
 EthernetClient client;
-boolean good = true;
+boolean inDataGood = true;
+int blindsState = 0;
+int blindsUpTime = 0;
+int lsPin = 10;
+int mcPin = 5;
+boolean lsState = false;
 String gVars[] = {"blindsMoveAllUp", "0", "blindMoveAllDown", "0", "blindMovePUp", "0", "blindMovePDown", "0", "mainLightOn", "0", "mainLightOff", "0", "hallLightOn", "0", "hallLightOff", "0", "projectorOn", "0", "projectorOff", "0", "tvOn", "0", "tvOff", "0", "tvInComp", "0", "tvInChrome", "0", "projInComp", "0", "projInChrome", "0", "speakerMute", "0", "speakerInProj", "0", "speeakerInTV", "0", "speakerInPhono", "0", "speakerInChrome", "0", "speakerVolumeUp", "0", "speakerVolumeDown", "0"};
  //                 0                         2                         4                       6                   8                         10                12                    14              16                      18                20    
 void setup() {
   Serial.begin(9600);
-
+  pinMode(lsPin, INPUT_PULLUP);
+  pinMode(mcPin, OUTPUT);
   radio.begin();
   radio.openWritingPipe(address);
   radio.setPALevel(RF24_PA_MAX);
@@ -33,10 +39,55 @@ void setup() {
 
 void loop() {
   maintainServer();
-  actOnServer();  
-  delay(20);
+  lightsUpdate();  
+  blindsUpdate();
+  delay(30);
 }
-boolean actOnServer()
+
+boolean blindsUpdate()
+{
+   //0 = not moving, 1 = moving up, -1 = moivng down 
+   
+  if(gVars[1].toInt()==1)
+  {
+    blindsState =1;
+    blindsUpTime = millis();
+    Serial.println("move blinds up");
+    postPage("set:blindsMoveAllUp=0;");
+  }
+  if(gVars[3].toInt()==1)
+  {
+    blindsUpTime = millis();
+    blindsState =-1;
+    Serial.println("move blinds down");
+    postPage("set:blindMoveAllDown=0;");
+  }
+  lsState = !digitalRead(lsPin);
+  
+  if(blindsState == 1 and abs(millis()- blindsUpTime) < 10000)
+  {
+    analogWrite(mcPin, 170);//go up
+  }
+   
+  if((blindsState == 1 or blindsState == -1)  and abs(millis()- blindsUpTime) > 10000)
+  {
+   
+    digitalWrite(mcPin, 0);//stop
+    blindsState = 0;
+  }
+  if(blindsState == 0 or lsState == true)
+  {
+    
+    digitalWrite(mcPin, 0);//stop
+    blindsState = 0;
+  }
+  if(blindsState == -1 and lsState == false)
+  {
+    analogWrite(mcPin, 75);//down    
+  }
+}
+
+boolean lightsUpdate()
 {
   boolean bothMove = false;
   if(gVars[9].toInt()==1 and gVars[13].toInt()==1 )
@@ -94,20 +145,20 @@ boolean maintainServer()
   //Serial.println();
   String str = postPage("return_if_changed");
   int check = str.indexOf("no_change");
-  good = false;
+  inDataGood = false;
   if(check < 0)
   {
-    good = true;
-    for(int i = 0; i <= 22 && good; i++)
+    inDataGood = true;
+    for(int i = 0; i <= 22 && inDataGood; i++)
     {
       int ti = str.indexOf(gVars[2*i]);
       if(ti<0)
       {
-        good = false;
+        inDataGood = false;
       }      
     }    
   }
-  if(good)
+  if(inDataGood)
   {
     updateGvars(str);
   }
