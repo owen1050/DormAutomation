@@ -5,7 +5,7 @@ byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 char serverName[] = "100.35.205.75";
 int serverPort = 23654;
 EthernetClient client;
-
+boolean good = true;
 String gVars[] = {"blindsMoveAllUp", "0", "blindMoveAllDown", "0", "blindMovePUp", "0", "blindMovePDown", "0", "mainLightOn", "0", "mainLightOff", "0", "hallLightOn", "0", "hallLightOff", "0", "projectorOn", "0", "projectorOff", "0", "tvOn", "0", "tvOff", "0", "tvInComp", "0", "tvInChrome", "0", "projInComp", "0", "projInChrome", "0", "speakerMute", "0", "speakerInProj", "0", "speeakerInTV", "0", "speakerInPhono", "0", "speakerInChrome", "0", "speakerVolumeUp", "0", "speakerVolumeDown", "0"};
 
 void setup() {
@@ -29,26 +29,25 @@ void loop() {
   //Serial.println();
   String str = postPage("return_if_changed");
   int check = str.indexOf("no_change");
+  good = false;
   if(check < 0)
   {
-    boolean good = true;
+    good = true;
+    Serial.println("no no_change");
     for(int i = 0; i <= 22 && good; i++)
     {
       int ti = str.indexOf(gVars[2*i]);
-      if(ti>=0)
+      if(ti<0)
       {
         good = false;
       }
       
     }
+    Serial.println(good);
   }
-  if(str.indexOf(gVars[0])>=0 && str.indexOf(gVars[44])>=0)
+  if(good)
   {
     updateGvars(str);
-  }
-  if(gVars[1].toInt() > 0)
-  {
-    Serial.println(gVars[1].toInt());
   }
   
   delay(50);
@@ -106,16 +105,16 @@ String postPage(char* thisData)
 
 
 void updateGvars(String nVars){  
-  
+  Serial.println("vars updated");
   for(int i = 0; i < 46; i = i + 2)
   {
     int lowI = nVars.indexOf(gVars[i]);
     int sVI = nVars.indexOf("=", lowI);
     int eVI = nVars.indexOf("!", sVI);
     gVars[i+1] = nVars.substring(sVI+1, eVI);
-    //Serial.print("var=");
-    //Serial.print(gVars[i]);
-    //Serial.print(":");
-    //Serial.println(gVars[i+1]);
+    Serial.print("var=");
+    Serial.print(gVars[i]);
+    Serial.print(":");
+    Serial.println(gVars[i+1]);
   }
 }
