@@ -3,7 +3,7 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
-RF24 radio(7, 8);
+RF24 radio(35,36);
 char text[32];
 const byte address[6] = "00001";
 
@@ -13,7 +13,7 @@ int serverPort = 23654;
 EthernetClient client;
 boolean inDataGood = true;
 int blindsState = 0;
-int blindsUpTime = 0;
+long blindsUpTime = 0;
 int lsPin = 10;
 int mcPin = 5;
 boolean lsState = false;
@@ -56,21 +56,21 @@ boolean irUpdate()
   }
   if (gVars[19].toInt() == 1)
   {
-    Serial.println("proj on");
+    Serial.println("proj off");
     setMsg("1");
     sendRFMsgConfirm();
     postPage("set:projectorOff=0;");
   }
   if (gVars[21].toInt() == 1)
   {
-    Serial.println("proj on");
+    Serial.println("tv on");
     setMsg("2");
     sendRFMsgConfirm();
     postPage("set:tvOn=0;");
   }
   if (gVars[23].toInt() == 1)
   {
-    Serial.println("proj on");
+    Serial.println("tv off");
     setMsg("3");
     sendRFMsgConfirm();
     postPage("set:tvOff=0;");
@@ -115,10 +115,15 @@ boolean irUpdate()
     Serial.println("vu");
     setMsg("U"+gVars[43]);
     sendRFMsgConfirm();
-    postPage("set:speakerInChrome=0;");
+    postPage("set:speakerVolumeUp=0;");
   }
-  
-  
+  if (gVars[45].toInt() > 0)
+  {
+    Serial.println("vd");
+    setMsg("U"+gVars[45]);
+    sendRFMsgConfirm();
+    postPage("set:speakerVolumeDown=0;");
+  }
 }
 
 boolean blindsUpdate()
@@ -142,19 +147,24 @@ boolean blindsUpdate()
   }
 
   lsState = !digitalRead(lsPin);
-
   if (blindsState == 1 and abs(millis() - blindsUpTime) < 10000)
   {
+    
     analogWrite(mcPin, 170);//go up
   }
 
-  if ((blindsState == 1 or blindsState == -1)  and abs(millis() - blindsUpTime) > 10000)
+  if ((blindsState == 1)  and abs(millis() - blindsUpTime) > 10000)
+  {
+    digitalWrite(mcPin, 0);//stop
+    blindsState = 0;
+  }
+  if ( blindsState == -1)  and abs(millis() - blindsUpTime) > 12000)
   {
     digitalWrite(mcPin, 0);//stop
     blindsState = 0;
   }
 
-  if (blindsState == 0 or lsState == true)
+  if (blindsState == 0)
   {
     digitalWrite(mcPin, 0);//stop
     blindsState = 0;
@@ -163,6 +173,13 @@ boolean blindsUpdate()
   if (blindsState == -1 and lsState == false)
   {
     analogWrite(mcPin, 75);//down
+  }
+  if (blindsState == -1 and lsState == true)
+  {
+    analogWrite(mcPin, 170);//up
+    while(digitalRead(lsPin) == false){}
+    digitalWrite(mcPin, 0);//stop
+    blindsState = 0;
   }
 }
 
@@ -174,7 +191,9 @@ boolean lightsUpdate()
     bothMove = true;
     Serial.println("TURN both LIGHT ON");
     setMsg("F00");
+    Serial.println("set");
     sendRFMsgConfirm();
+    Serial.println("sent");
     postPage("set:mainLightOn=0;");
     postPage("set:hallLightOn=0;");
   }
@@ -320,6 +339,7 @@ void sendRFMsgConfirm()
   for (int i = 0; i < 30; i++)
   {
     radio.write(&text, sizeof(text));
+    Serial.println("sending");
   }
   // Serial.println("done");
 }
