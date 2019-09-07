@@ -113,14 +113,14 @@ boolean irUpdate()
   if (gVars[43].toInt() > 0)
   {
     Serial.println("vu");
-    setMsg("U"+gVars[43]);
+    setMsg("VU"+gVars[43]);
     sendRFMsgConfirm();
     postPage("set:speakerVolumeUp=0;");
   }
   if (gVars[45].toInt() > 0)
   {
     Serial.println("vd");
-    setMsg("U"+gVars[45]);
+    setMsg("VD"+gVars[45]);
     sendRFMsgConfirm();
     postPage("set:speakerVolumeDown=0;");
   }
@@ -158,7 +158,7 @@ boolean blindsUpdate()
     digitalWrite(mcPin, 0);//stop
     blindsState = 0;
   }
-  if ( blindsState == -1)  and abs(millis() - blindsUpTime) > 12000)
+  if ( blindsState == -1  and abs(millis() - blindsUpTime) > 12000)
   {
     digitalWrite(mcPin, 0);//stop
     blindsState = 0;

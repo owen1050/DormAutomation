@@ -21,12 +21,14 @@ char text[32];
 long prevT = 0;
 String prev ="";
 const byte address[6] = "00001";
+int volCount = 0;
 
 void setup() {
   Serial.begin(9600);
   radio.begin();
   radio.openReadingPipe(0, address);  
   radio.startListening();
+  Serial.println("running");
 }
 
 void loop() {
@@ -47,47 +49,75 @@ void loop() {
       prevT = millis();
      //Serial.println(dataIn);
     }
-    Serial.println(dataIn);
-    //at this point inData only comes up once per data
-    if(dataIn.equals("0"))
+    if(dataIn != "")
     {
-      mySender.send(projPower,RAW_DATA_LEN,36);
+      Serial.println(dataIn);
+      
+      
+      //at this point inData only comes up once per data
+      if(dataIn.equals("0"))
+      {
+        mySender.send(projPower,RAW_DATA_LEN,36);
+      }
+      if(dataIn.equals("1"))
+      {
+        mySender.send(projPower,RAW_DATA_LEN,36);
+        delay(1000);
+        mySender.send(projPower,RAW_DATA_LEN,36);
+        delay(1000);
+        mySender.send(projPower,RAW_DATA_LEN,36);
+      }
+      if(dataIn.equals("2"))
+      {
+        mySender.send(tvPower,RAW_DATA_LEN,36);
+      }
+      if(dataIn.equals("3"))
+      {
+        mySender.send(tvPower,RAW_DATA_LEN,36);
+      }
+      if(dataIn.equals("4"))
+      {
+        mySender.send(mute,RAW_DATA_LEN,36);
+      }
+      if(dataIn.equals("5"))
+      {
+        mySender.send(auxTwo,RAW_DATA_LEN,36);
+      }
+      if(dataIn.equals("6"))
+      {
+        mySender.send(auxOne,RAW_DATA_LEN,36);
+      }
+      if(dataIn.equals("7"))
+      {
+        mySender.send(phono,RAW_DATA_LEN,36);
+      }
+      if(dataIn.equals("8"))
+      {
+        mySender.send(cd,RAW_DATA_LEN,36);
+      }
+      if(dataIn.indexOf("VD") > -1)
+      {
+        volCount = dataIn.substring(2).toInt();
+        while(volCount > 0)
+        {
+          mySender.send(volumeDown,RAW_DATA_LEN,36);
+          volCount = volCount - 1;
+          Serial.println("vd");
+          delay(250);
+        }
+      }
+      if(dataIn.indexOf("VU") > -1)
+      {
+        volCount = dataIn.substring(2).toInt();
+        while(volCount > 0)
+        {
+          mySender.send(volumeUp,RAW_DATA_LEN,36);
+          volCount = volCount - 1;
+          Serial.println("vu");
+          delay(250);
+        }
+      }
     }
-    if(dataIn.equals("1"))
-    {
-      mySender.send(projPower,RAW_DATA_LEN,36);
-      delay(500);
-      mySender.send(projPower,RAW_DATA_LEN,36);
-    }
-    if(dataIn.equals("2"))
-    {
-      mySender.send(tvPower,RAW_DATA_LEN,36);
-    }
-    if(dataIn.equals("3"))
-    {
-      mySender.send(tvPower,RAW_DATA_LEN,36);
-    }
-    if(dataIn.equals("4"))
-    {
-      mySender.send(mute,RAW_DATA_LEN,36);
-    }
-    if(dataIn.equals("5"))
-    {
-      mySender.send(auxTwo,RAW_DATA_LEN,36);
-    }
-    if(dataIn.equals("6"))
-    {
-      mySender.send(auxOne,RAW_DATA_LEN,36);
-    }
-    if(dataIn.equals("7"))
-    {
-      mySender.send(phono,RAW_DATA_LEN,36);
-    }
-    if(dataIn.equals("8"))
-    {
-      mySender.send(cd,RAW_DATA_LEN,36);
-    }
-    //add volume up and volume down
     
   }
 }
