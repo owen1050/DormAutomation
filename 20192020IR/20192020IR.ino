@@ -22,6 +22,8 @@ long prevT = 0;
 String prev ="";
 const byte address[6] = "00001";
 int volCount = 0;
+long irCount = 0;
+long prevIR = -1;
 
 void setup() {
   Serial.begin(9600);
@@ -37,18 +39,16 @@ void loop() {
     radio.read(&text, radio.getPayloadSize());
     //Serial.println(text);
     String dataIn = String(text);
-      
-    if(prev == dataIn && abs(millis() - prevT) <5000)
+    irCount = dataIn.substring(0,dataIn.indexOf(":")).toInt();
+    if(prevIR == irCount)
     {
       dataIn = "";
-      prevT = millis();
     }
     else
     {
-      prev = dataIn;
-      prevT = millis();
-     //Serial.println(dataIn);
+      dataIn = dataIn.substring(dataIn.indexOf(":") +1);
     }
+    prevIR = irCount;
     if(dataIn != "")
     {
       Serial.println(dataIn);
@@ -97,7 +97,7 @@ void loop() {
       }
       if(dataIn.indexOf("VD") > -1)
       {
-        volCount = dataIn.substring(2).toInt();
+        volCount = dataIn.substring(dataIn.indexOf("VD")+2).toInt();
         while(volCount > 0)
         {
           mySender.send(volumeDown,RAW_DATA_LEN,36);
@@ -108,7 +108,7 @@ void loop() {
       }
       if(dataIn.indexOf("VU") > -1)
       {
-        volCount = dataIn.substring(2).toInt();
+        volCount = dataIn.substring(dataIn.indexOf("VU")+2).toInt();
         while(volCount > 0)
         {
           mySender.send(volumeUp,RAW_DATA_LEN,36);

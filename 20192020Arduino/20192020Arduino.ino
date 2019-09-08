@@ -16,6 +16,7 @@ int blindsState = 0;
 long blindsUpTime = 0;
 int lsPin = 10;
 int mcPin = 5;
+long irCount = 0;
 boolean lsState = false;
 String gVars[] = {"blindsMoveAllUp", "0", "blindMoveAllDown", "0", "blindMovePUp", "0", "blindMovePDown", "0", "mainLightOn", "0", "mainLightOff", "0", "hallLightOn", "0", "hallLightOff", "0", "projectorOn", "0", "projectorOff", "0", "tvOn", "0", "tvOff", "0", "tvInComp", "0", "tvInChrome", "0", "projInComp", "0", "projInChrome", "0", "speakerMute", "0", "speakerInProj", "0", "speeakerInTV", "0", "speakerInPhono", "0", "speakerInChrome", "0", "speakerVolumeUp", "0", "speakerVolumeDown", "0"};
 //                 0                         2                         4                       6                   8                         10                12                    14              16                      18                20         22            24                  26                28                  30                  32                  34                    36                      38                    40                      42                    44
@@ -50,77 +51,88 @@ boolean irUpdate()
   if (gVars[17].toInt() == 1)
   {
     Serial.println("proj on");
-    setMsg("0");
+    setMsg(String(irCount)+":0");
+    irCount++;
     sendRFMsgConfirm();
     postPage("set:projectorOn=0;");
   }
   if (gVars[19].toInt() == 1)
   {
     Serial.println("proj off");
-    setMsg("1");
+    setMsg(String(irCount)+":1");
+    irCount++;
     sendRFMsgConfirm();
     postPage("set:projectorOff=0;");
   }
   if (gVars[21].toInt() == 1)
   {
     Serial.println("tv on");
-    setMsg("2");
+    setMsg(String(irCount)+":2");
+    irCount++;
     sendRFMsgConfirm();
     postPage("set:tvOn=0;");
   }
   if (gVars[23].toInt() == 1)
   {
     Serial.println("tv off");
-    setMsg("3");
+    setMsg(String(irCount)+":3");
+    irCount++;
     sendRFMsgConfirm();
     postPage("set:tvOff=0;");
   }
   if (gVars[33].toInt() == 1)
   {
     Serial.println("sp mute");
-    setMsg("4");
+    setMsg(String(irCount)+":4");
+    irCount++;
     sendRFMsgConfirm();
     postPage("set:speakerMute=0;");
   }
   if (gVars[35].toInt() == 1)
   {
     Serial.println("sp proj");
-    setMsg("5");
+    setMsg(String(irCount)+":5");
+    irCount++;
     sendRFMsgConfirm();
     postPage("set:speakerInProj=0;");
   }
   if (gVars[37].toInt() == 1)
   {
     Serial.println("sp tv");
-    setMsg("6");
+    setMsg(String(irCount)+":6");
+    irCount++;
     sendRFMsgConfirm();
     postPage("set:speeakerInTV=0;");
   }
   if (gVars[39].toInt() == 1)
   {
     Serial.println("sp phono");
-    setMsg("7");
+    setMsg(String(irCount)+":7");
+    irCount++;
     sendRFMsgConfirm();
     postPage("set:speakerInPhono=0;");
   }
   if (gVars[41].toInt() == 1)
   {
     Serial.println("sp chrome");
-    setMsg("8");
+    setMsg(String(irCount)+":8");
+    irCount++;
     sendRFMsgConfirm();
     postPage("set:speakerInChrome=0;");
   }
   if (gVars[43].toInt() > 0)
   {
     Serial.println("vu");
-    setMsg("VU"+gVars[43]);
+    setMsg(String(irCount)+"VU"+gVars[43]);
+    irCount++;
     sendRFMsgConfirm();
     postPage("set:speakerVolumeUp=0;");
   }
   if (gVars[45].toInt() > 0)
   {
     Serial.println("vd");
-    setMsg("VD"+gVars[45]);
+    setMsg(String(irCount)+"VD"+gVars[45]);
+    irCount++;
     sendRFMsgConfirm();
     postPage("set:speakerVolumeDown=0;");
   }
