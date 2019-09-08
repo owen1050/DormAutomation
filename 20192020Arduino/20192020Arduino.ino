@@ -17,6 +17,7 @@ long blindsUpTime = 0;
 int lsPin = 10;
 int mcPin = 5;
 long irCount = 0;
+int loopsOfButton = 0;
 boolean lsState = false;
 String gVars[] = {"blindsMoveAllUp", "0", "blindMoveAllDown", "0", "blindMovePUp", "0", "blindMovePDown", "0", "mainLightOn", "0", "mainLightOff", "0", "hallLightOn", "0", "hallLightOff", "0", "projectorOn", "0", "projectorOff", "0", "tvOn", "0", "tvOff", "0", "tvInComp", "0", "tvInChrome", "0", "projInComp", "0", "projInChrome", "0", "speakerMute", "0", "speakerInProj", "0", "speeakerInTV", "0", "speakerInPhono", "0", "speakerInChrome", "0", "speakerVolumeUp", "0", "speakerVolumeDown", "0"};
 //                 0                         2                         4                       6                   8                         10                12                    14              16                      18                20         22            24                  26                28                  30                  32                  34                    36                      38                    40                      42                    44
@@ -189,9 +190,21 @@ boolean blindsUpdate()
   if (blindsState == -1 and lsState == true)
   {
     analogWrite(mcPin, 170);//up
-    while(digitalRead(lsPin) == false){}
+    loopsOfButton=0;
+    while(loopsOfButton < 5)
+    {
+      if(digitalRead(lsPin))
+      {
+        loopsOfButton++;
+      }
+      else
+      {
+        loopsOfButton = 0;
+      }
+    }
     digitalWrite(mcPin, 0);//stop
     blindsState = 0;
+    
   }
 }
 
