@@ -191,8 +191,9 @@ boolean blindsUpdate()
   {
     analogWrite(mcPin, 170);//up
     loopsOfButton=0;
-    while(loopsOfButton < 5)
+    while(loopsOfButton < 100)
     {
+      analogWrite(mcPin, 170);//up
       if(digitalRead(lsPin))
       {
         loopsOfButton++;
